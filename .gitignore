@@ -1,0 +1,31 @@
+# Python: Byte-compiled files
+__pycache__/
+*.pyc
+
+# Python: Distribution \ packaging
+*.egg-info/
+
+# Python: coverage reports
+.coverage*
+htmlcov/
+coverage.xml
+
+# Project directories
+/build/
+/dist/
+
+# Other
+*.swp
+*.retry
+.idea/
+.develop/
+.cache/
+.pytest_cache/
+nohup.out
+.vagrant
+/Vagrantfile
+/logs
+/var
+.DS_Store
+ansible-deployment/
+yarn-error.log
