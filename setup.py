@@ -9,5 +9,5 @@ setup(
     author_email='cspealma@redhat.com',
     license='MIT',
     py_modules=['findtext'],
-    zip_safe=False,
+    zip_safe=True,
 )
