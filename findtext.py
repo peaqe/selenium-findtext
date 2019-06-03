@@ -3,6 +3,7 @@ import time
 
 from selenium.common.exceptions import (
     InvalidElementStateException,
+    NoSuchElementException,
     StaleElementReferenceException,
     WebDriverException,
 )
@@ -175,6 +176,7 @@ def find_elements_by_text(driver, text,
 
         // Cull parents
         var indices = []
+        var precull = new Array(...elements)
         elements.forEach((a) => {
             elements.forEach((b, i) => {
                 if (a !== b && b.contains(a)) {
@@ -182,6 +184,9 @@ def find_elements_by_text(driver, text,
                 }
             })
         })
+        indices = new Array(...new Set(indices))
+        indices.sort((a,b) => a - b)
+        var culled = new Array(...indices)
         while (indices.length > 0) {
             var i = indices.pop();
             elements.splice(i, 1)
@@ -191,13 +196,18 @@ def find_elements_by_text(driver, text,
         window.last_results = {
             target: ctx,
             all: all,
+            culled: culled,
+            precull: precull,
             elements: elements,
         } /* uncomment for debugging */
 
         return elements
         """, element, text, exact, selector)
 
-        return elements
+        if elements:
+            break
+
+    return elements
 
 
 def fill_input_by_label(driver, element, label, value, timeout=None):
@@ -223,13 +233,22 @@ def fill_input_by_label(driver, element, label, value, timeout=None):
     return input
 
 
-def fill_input_by_placeholder(driver, element, label, value):
+def fill_input_by_placeholder(driver, element, label, value, timeout=1):
     """Click on a field label and enter text to the associated input."""
-    css_sel = '[placeholder="%s"]' % label
-    input = (element or driver).find_element_by_css_selector(css_sel)
-    input.clear()
-    input.send_keys(value)
+    input = None
+    @retry_w_timeout(1)
+    def _():
+        nonlocal input
+        css_sel = '[placeholder="%s"]' % label
+        try:
+            input = (element or driver).find_element_by_css_selector(css_sel)
+        except NoSuchElementException:
+            return False
+        input.clear()
+        input.send_keys(value)
+        return True
     return input
+
 
 
 def read_input_by_label(driver, element, label):

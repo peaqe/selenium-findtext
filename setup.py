@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name='findtext',
-    version='0.1',
+    name='selenium-findtext',
+    version='0.1.2',
     description='Text finding helpers for Selenium tests',
     long_description=long_description,
     long_description_content_type='text/markdown',
