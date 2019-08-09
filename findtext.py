@@ -210,7 +210,7 @@ def find_elements_by_text(driver, text,
     return elements
 
 
-def fill_input_by_label(driver, element, label, value, timeout=None):
+def fill_input_by_label(driver, element, label, value, timeout=0.2):
     """Click on a field label and enter text to the associated input."""
     input = None
 
@@ -218,9 +218,20 @@ def fill_input_by_label(driver, element, label, value, timeout=None):
     def _():
         nonlocal input
         el = find_element_by_text(element or driver, label,
-                                  timeout=0.2, selector='label')
+                                  timeout=timeout, selector='label')
 
-        el.click()
+        try:
+            el.click()
+        except WebDriverException as e:
+            if 'not clickable' in e.args[0]:
+                try:
+                    driver.execute_script(
+                        'return document.getElementById(arguments[0].htmlFor)', el,
+                    ).click()
+                except WebDriverException as e:
+                    return e
+            else:
+                return e
         input = driver.execute_script('return document.activeElement')
         try:
             input.clear()
@@ -263,7 +274,15 @@ def read_input_by_label(driver, element, label):
         try:
             el.click()
         except WebDriverException as e:
-            return e
+            if 'not clickable' in e.args[0]:
+                try:
+                    driver.execute_script(
+                        'return document.getElementById(arguments[0].htmlFor)', el,
+                    ).click()
+                except WebDriverException as e:
+                    return e
+            else:
+                return e
         input = driver.execute_script('return document.activeElement')
         value = input.get_attribute('value')
 
