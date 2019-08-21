@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='selenium-findtext',
-    version='0.1.3',
+    version='0.1.4',
     description='Text finding helpers for Selenium tests',
     long_description=long_description,
     long_description_content_type='text/markdown',
